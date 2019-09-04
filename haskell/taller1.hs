@@ -6,20 +6,33 @@ data Proposition = Var String | Not Proposition | And Proposition Proposition | 
 type Assignment = String -> Bool
 
 -- recProp :: 
-recProp  :: (String -> c) -> (Proposition -> c -> c)-> (Proposition -> Proposition -> c -> c -> c) -> (Proposition -> Proposition -> c -> c -> c)->(Proposition -> Proposition -> c -> c -> c)-> Proposition -> c
+recProp  :: (String -> c) ->  					-- recVar
+		(Proposition -> c -> c)-> 			-- recNot
+		(Proposition -> Proposition -> c -> c -> c) ->  -- recAnd
+		(Proposition -> Proposition -> c -> c -> c)->   -- recOr
+		(Proposition -> Proposition -> c -> c -> c)->   -- recImpl
+		Proposition -> 					-- prop
+		c 
 recProp recVar recNot recAnd recOr recImpl prop = case prop of Var str -> recVar str
-                                                               Not p -> recNot p (recProp recVar recNot recAnd recOr recImpl p)
-                                                               And p1 p2 -> recAnd p1 p2 (recProp recVar recNot recAnd recOr recImpl p1) (recProp recVar recNot recAnd recOr recImpl p2)
-                                                               Or p1 p2 -> recOr p1 p2 (recProp recVar recNot recAnd recOr recImpl p1) (recProp recVar recNot recAnd recOr recImpl p2)
-                                                               Impl p1 p2 -> recImpl p1 p2 (recProp recVar recNot recAnd recOr recImpl p1) (recProp recVar recNot recAnd recOr recImpl p2)                                                         
+                                                               Not p -> recNot p (rec p)
+                                                               And p1 p2 -> recAnd p1 p2 (rec p1) (rec p2)
+                                                               Or p1 p2 -> recOr p1 p2 (rec p1) (rec p2)
+                                                               Impl p1 p2 -> recImpl p1 p2 (rec p1) (rec p2)
+							where rec = recProp recVar recNot recAnd recOr recImpl
 
-foldProp :: (String -> c) -> (c -> c) -> (c -> c -> c) -> (c -> c -> c) -> (c -> c -> c) -> Proposition -> c
+foldProp :: (String -> c) -> 					-- fVar
+		(c -> c) -> 					-- fNot
+		(c -> c -> c) -> 				-- fAnd
+		(c -> c -> c) -> 				-- fOr
+		(c -> c -> c) -> 				-- fImpl
+		Proposition -> 					-- prop
+		c
 foldProp fVar fNot fAnd fOr fImpl prop = case prop of Var b -> fVar b
-                                                      Not b -> fNot (rec b)
+                                                      Not p1 -> fNot (rec p1)
                                                       And p1 p2 -> fAnd (rec p1)(rec p2)
                                                       Or p1 p2 -> fOr (rec p1)(rec p2)
                                                       Impl p1 p2 -> fImpl (rec p1) (rec p2)
-                                                  where rec = foldProp fVar fNot fAnd fOr fImpl
+						  where rec = recProp fVar fNot fAnd fOr fImpl
 
 
 instance Show Proposition where
