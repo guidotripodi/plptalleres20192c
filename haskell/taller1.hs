@@ -32,7 +32,7 @@ foldProp fVar fNot fAnd fOr fImpl prop = case prop of Var b -> fVar b
                                                       And p1 p2 -> fAnd (rec p1)(rec p2)
                                                       Or p1 p2 -> fOr (rec p1)(rec p2)
                                                       Impl p1 p2 -> fImpl (rec p1) (rec p2)
-						  where rec = recProp fVar fNot fAnd fOr fImpl
+						  where rec = foldProp fVar fNot fAnd fOr fImpl
 
 
 instance Show Proposition where
@@ -43,7 +43,7 @@ assignTrue :: [String] -> Assignment
 assignTrue ls x = elem x ls -- flip elem
 
 eval :: Assignment -> Proposition -> Bool
-eval = undefined
+eval val = undefined
 
 elimImpl :: Proposition -> Proposition
 elimImpl = undefined
@@ -58,7 +58,7 @@ vars :: Proposition -> [String]
 vars = undefined
 
 parts :: [a] -> [[a]]
-parts = undefined
+parts = foldr (\x res -> res ++ (map (x:) res)) [[]]
 
 sat :: Proposition -> [[String]]
 sat = undefined
