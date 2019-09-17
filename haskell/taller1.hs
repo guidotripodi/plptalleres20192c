@@ -32,7 +32,7 @@ foldProp fVar fNot fAnd fOr fImpl prop = case prop of Var b -> fVar b
                                                       And p1 p2 -> fAnd (rec p1)(rec p2)
                                                       Or p1 p2 -> fOr (rec p1)(rec p2)
                                                       Impl p1 p2 -> fImpl (rec p1) (rec p2)
-						  where rec = foldProp fVar fNot fAnd fOr fImpl
+						  where rec = recProp fVar (\x y -> (fNot y)) (\x y z m -> (fAnd z m)) (\x y z m -> (fOr z m)) (\x y z m -> (fImpl z m))
 
 
 instance Show Proposition where
